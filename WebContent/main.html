@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Assignment</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+	<div class="container">
+		<div class="page-header">
+			<h2>Exercise2</h2>
+		</div>
+		<div class="form-horizontal" role="form" id="address-form">
+			<div class="form-group">
+				<h4 class="text-left col-xs-2">Enter Address :</h4>
+				<div class="text-left col-xs-6">
+					<input type="text" class="text-left form-control " id="my-address" />
+				</div>
+				<button type="button" class="text-left btn btn-primary col-xs-2" onclick="codeAddress();" >Get Coordinates</button>
+			</div>
+		</div>
+		<div id="myalerts" class="alert alert-success" style="display: none;">
+			<a href="#" class="close" id="cl" aria-label="close">&times;</a>
+			<p id="dmsg"></p>
+		</div>
+	</div>
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<script>
+function initialize() {
+    var address = (document.getElementById('my-address'));
+    var autocomplete = new google.maps.places.Autocomplete(address);
+    autocomplete.setTypes(['geocode']);
+    google.maps.event.addListener(autocomplete, 'place_changed', function() {
+    	var place = autocomplete.getPlace();
+    	codeAddress();
+        if (!place.geometry) {
+        	return;
+        }
+	var address = '';
+    if (place.address_components) {
+        address = [
+            (place.address_components[0] && place.address_components[0].short_name || ''),
+            (place.address_components[1] && place.address_components[1].short_name || ''),
+            (place.address_components[2] && place.address_components[2].short_name || '')
+            ].join(' ');
+    }
+  });
+  $("#my-address").focus();
+}
+google.maps.event.addDomListener(window, 'load', initialize);
+
+function codeAddress() {
+	geocoder = new google.maps.Geocoder();
+    var address = document.getElementById("my-address").value;
+    geocoder.geocode( { 'address': address}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+			var latitude = results[0].geometry.location.lat();
+      		var longitude = results[0].geometry.location.lng();
+      		var address = results[0].formatted_address;
+      		$('#myalerts').slideUp(200);
+      		$('#dmsg').html('');
+      		$('#dmsg').html('<strong> Address :  </strong>' + address
+      						+ '<br><strong>Latitude :  </strong> '+ latitude
+      						+ '&nbsp;&nbsp;&nbsp;&nbsp;<strong>Longitude : </strong>' + longitude
+      						);
+      		
+      		$('#myalerts').slideDown(500);
+      } 
+      else {
+        alert("Geocode was not successful for the following reason: " + status);
+      }
+    });
+}
+$(document).ready(function(){
+    $("#cl").click(function(){
+    	$("#myalerts").slideUp(250);
+    	$("#my-address").val("");
+    	$("#my-address").focus();
+    });
+});
+
+</script>
+</html>
